@@ -1,0 +1,76 @@
+#!/bin/bash
+
+shopt -s nocasematch
+
+PROJECT_NAME=robo
+RED='\e[31m'
+GREEN='\e[32m'
+YELLOW='\e[33m'
+NOCOLOR='\e[0m'
+LOG_FILE=instance.log
+AMIID="ami-0220d79f3f480ecf5"
+INSTANCE_SIZE="t3.micro"
+DOMAIN_NAME="mrmotam.online"
+ZONEID="Z00263282318BT9FBW1XK"
+
+#Validate if the correct arguments are provided
+if [ $# -lt 1 ]; then
+    echo -e "Provide Valid arguments. No arguments provided"
+    echo -e "USAGE:: $0 <Instance name> ... "
+    exit 1
+fi
+
+get_instance_id(){
+    NAME=$1
+    aws ec2 describe-instances --filters "Name=tag:Name,Values=robo-$NAME" "Name=instance-state-name,Values=running" --query "Reservations[0].Instances[0].InstanceId" --output text
+}
+
+for instance in "$@"
+do
+    INSTANCE_ID=$(get_instance_id "$instance")
+    if [ "$INSTANCE_ID" == None ]; then
+        INSTANCE_ID=$(aws ec2 run-instaces \
+            --image-id "$AMIID" \
+            --instance-type "$INSTANCE_SIZE" \
+            --security-groups "robo-$instance" \
+            --tag-specification "ResourceType=instance,Tags=[{Key=Name,Value=robo-$instance}]" \
+            --query "Instances[0].InstanceId" \
+            --output text)
+        aws ec2 wait instance-running --instance-ids "$INSTANCE_ID"
+        echo -e "Instance is created and running: $INSTANCE_ID"
+    else
+        echo -e "Instance $INSTANCE_ID is already running"
+    fi
+
+    if [ "$instance" == frontend ]; then
+        IP=$(aws ec2 describe-instanawces --instance-ids "$INSTANCE_ID" \
+            --query "Reservations[0].Instances[0].PublicIpAddress" \
+            --output text)
+        R53_RECORD="$DOMAIN_NAME"
+    else
+        IP=$(aws ec2 describe-instanawces --instance-ids "$INSTANCE_ID" \
+            --query "Reservations[0].Instances[0].PrivateIpAddress" \
+            --output text)
+        R53_RECORD="$instance.$DOMAIN_NAME"
+    fi
+#updating the AWS record
+
+    aws route53 change-resource-record-sets --hosted-zone-id $ZONEID 
+        --change-batch "
+            {
+                "Comment": "Creating an A record",
+                "Changes": [
+                        {
+                        "Action": "UPSERT",
+                        "ResourceRecordSet": {
+                            "Name": "$R53_RECORD",
+                            "Type": "A",
+                            "TTL": 1,
+                            "ResourceRecords": [{ "Value": "$IP" }]
+                        }
+                    }
+                ]
+            }
+        "
+        echo "Updated the R53 Record for $instance"
+done

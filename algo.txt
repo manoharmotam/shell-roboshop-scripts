@@ -4,3 +4,15 @@ if security group exists
     check if the required ports are open
         if the required ports not open
             create the 
+
+==========
+Creating Instances
+==========
+should accept arguments
+if no arguments provided, then throw error and exit.
+if arguments provided, then check if the Instance exists.
+    if exists:
+        update that the instance exists
+        once instance is created, add the instance ip to the R53 record.
+    else:
+        createa a new instance
