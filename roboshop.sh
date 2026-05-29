@@ -11,7 +11,7 @@ LOG_FILE=instance.log
 AMIID="ami-0220d79f3f480ecf5"
 INSTANCE_SIZE="t3.micro"
 DOMAIN_NAME="mrmotam.online"
-ZONEID="Z00263282318BT9FBW1XK"
+ZONEID=Z00263282318BT9FBW1XK
 
 #Validate if the correct arguments are provided
 if [ $# -lt 1 ]; then
@@ -48,7 +48,7 @@ do
             --output text)
         R53_RECORD="$DOMAIN_NAME"
     else
-        IP=$(aws ec2 describe-instanawces --instance-ids "$INSTANCE_ID" \
+        IP=$(aws ec2 describe-instanaces --instance-ids "$INSTANCE_ID" \
             --query "Reservations[0].Instances[0].PrivateIpAddress" \
             --output text)
         R53_RECORD="$instance.$DOMAIN_NAME"
