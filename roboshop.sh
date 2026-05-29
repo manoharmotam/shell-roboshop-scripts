@@ -43,7 +43,7 @@ do
     fi
 
     if [ "$instance" == frontend ]; then
-        IP=$(aws ec2 describe-instanawces --instance-ids "$INSTANCE_ID" \
+        IP=$(aws ec2 describe-instances --instance-ids "$INSTANCE_ID" \
             --query "Reservations[0].Instances[0].PublicIpAddress" \
             --output text)
         R53_RECORD="$DOMAIN_NAME"
