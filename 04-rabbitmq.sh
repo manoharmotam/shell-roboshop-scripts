@@ -30,12 +30,16 @@ VALIDATE(){
     fi
 }
 
-dnf install mysql-server -y
-VALIDATE $? "Installing mysql-server"
+cp configs/rabbitmq.repo /etc/yum.repos.d/
+VALIDATE $? "Copy RabbitMQ repo file to repo list"
 
-systemctl enable mysqld | tee -a $LOGS_FILE
-systemctl restart mysqld
-VALIDATE $? "Restarting mysql-services"
+dnf install rabbitmq-server -y | tee -a $LOGS_FILE
+VALIDATE $? "Installation is complete"
 
-mysql_secure_installation --set-root-pass RoboShop@1
-VALIDATE $? "Setting up the root user"
+systemctl enable rabbitmq-server | tee -a $LOGS_FILE
+systemctl restart rabbitmq-server
+VALIDATE $? "RabbitMQ Services restarted"
+
+rabbitmqctl add_user roboshop roboshop123
+rabbitmqctl set_permissions -p / roboshop ".*" ".*" ".*"
+VALIDATE $? "Setting up RabbitMQ user"
