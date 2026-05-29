@@ -42,6 +42,8 @@ if [ $? -ne 0 ]; then
     VALIDATE $? "Creating the user for the application"
 else
     echo "User roboshop already exists"
+fi
+
 mkdir /app 
 curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip 
 cd /app 
@@ -66,4 +68,3 @@ VALIDATE $? "Installing the monogosh cli"
 
 mongosh --host mongodb.mrmotam.online </app/db/master-data.js
 VALIDATE $? "Setting the catalogue database"
-
