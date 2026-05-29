@@ -1,0 +1,46 @@
+#!/bin/bash
+
+shopt -s nocasematch
+
+PROJECT_NAME=robo
+RED='\e[31m'
+GREEN='\e[32m'
+YELLOW='\e[33m'
+NOCOLOR='\e[0m'
+LOGS_FOLDER="/var/log/roboshop"
+sudo mkdir -p $LOGS_FOLDER
+sudo chown -R ec2-user:ec2-user $LOGS_FOLDER
+sudo chmod -R 755 $LOGS_FOLDER
+LOGS_FILE="$LOGS_FOLDER/$0.log"
+TIMESTAMP=$(date '+%Y-%m-%d %T')
+
+#user validation
+if [ $(id -u) -ne 0 ]; then
+    echo -e "$RED Please run this script as Root User $NOCOLOR" | tee -a $LOGS_FILE
+    exit 1
+fi
+
+
+VALIDATE(){
+    if [ $1 -ne 0 ]; then
+        echo -e "$TIMESTAMP $RED [ERROR] $NOCOLOR -- $2 Failed" &>> $LOGS_FILE
+    else
+        echo -e "$TIMESTAMP $GREEN [ERROR] $NOCOLOR -- $2 Success" &>
+    fi
+}
+
+cp ../configs/mongo.repo /etc/yum.repos.d/
+VALIDATE $? "Copy Mongo repo file to repo list"
+
+dnf install mongodb-org -y >> $LOGS_FILE
+VALIDATE $? "Installation is complete"
+
+sed -i 's/127.0.0.1/0.0.0.0/g' /etc/mongod.conf
+VALIDATE $? "Updated the mongod.conf"
+
+systemctl enable mongod
+systemctl restart mongod
+
+
+
+
