@@ -25,7 +25,7 @@ VALIDATE(){
     if [ $1 -ne 0 ]; then
         echo -e "$TIMESTAMP $RED [ERROR] $NOCOLOR -- $2 Failed" &>> $LOGS_FILE
     else
-        echo -e "$TIMESTAMP $GREEN [ERROR] $NOCOLOR -- $2 Success" &>
+        echo -e "$TIMESTAMP $GREEN [ERROR] $NOCOLOR -- $2 Success" &>LOGS_FILE
     fi
 }
 
@@ -40,6 +40,7 @@ VALIDATE $? "Updated the mongod.conf"
 
 systemctl enable mongod
 systemctl restart mongod
+VALIDATE $? "MongoD Services restarted"
 
 
 
