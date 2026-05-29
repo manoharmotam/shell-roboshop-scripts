@@ -16,3 +16,6 @@ if arguments provided, then check if the Instance exists.
         once instance is created, add the instance ip to the R53 record.
     else:
         createa a new instance
+
+
+git clone https://github.com/manoharmotam/shell-roboshop-scripts.git
