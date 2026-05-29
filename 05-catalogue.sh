@@ -45,7 +45,7 @@ unzip /tmp/catalogue.zip
 npm install 
 VALIDATE $? "Downloading the dependencies and packaging the App"
 
-cp configs/catalogue.service /etc/systemd/system/
+cp ./configs/catalogue.service /etc/systemd/system/
 VALIDATE $? "Creating the Catalogue service for the App"
 
 
