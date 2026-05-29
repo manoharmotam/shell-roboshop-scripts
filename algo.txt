@@ -1,0 +1,6 @@
+provide all arguments, if less than 1 arguments are provided then throw an error
+check if the security group already exists
+if security group exists
+    check if the required ports are open
+        if the required ports not open
+            create the 

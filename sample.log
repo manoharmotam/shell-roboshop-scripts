@@ -1,0 +1,36 @@
+
+An error occurred (InvalidGroup.NotFound) when calling the DescribeSecurityGroups operation: The security group 'robo-mongodb3' does not exist in default VPC 'vpc-01a1d11626ea0045f'
+sg-0442835a0435f9601
+
+An error occurred (InvalidGroup.NotFound) when calling the DescribeSecurityGroups operation: The security group 'robo-mongodb4' does not exist in default VPC 'vpc-01a1d11626ea0045f'
+
+An error occurred (InvalidGroup.NotFound) when calling the DescribeSecurityGroups operation: The security group 'robo-mongodb1' does not exist in default VPC 'vpc-01a1d11626ea0045f'
+
+An error occurred (InvalidGroup.NotFound) when calling the DescribeSecurityGroups operation: The security group 'robo-mongodb2' does not exist in default VPC 'vpc-01a1d11626ea0045f'
+
+An error occurred (InvalidGroup.NotFound) when calling the DescribeSecurityGroups operation: The security group 'robo-hi' does not exist in default VPC 'vpc-01a1d11626ea0045f'
+
+An error occurred (InvalidGroup.NotFound) when calling the DescribeSecurityGroups operation: The security group 'robo-mongodb3' does not exist in default VPC 'vpc-01a1d11626ea0045f'
+
+An error occurred (InvalidGroup.NotFound) when calling the DescribeSecurityGroups operation: The security group 'robo-mongodb4' does not exist in default VPC 'vpc-01a1d11626ea0045f'
+
+An error occurred (InvalidGroup.NotFound) when calling the DescribeSecurityGroups operation: The security group 'robo-mongodb5' does not exist in default VPC 'vpc-01a1d11626ea0045f'
+
+An error occurred (InvalidGroup.NotFound) when calling the DescribeSecurityGroups operation: The security group 'robo-mongodb5' does not exist in default VPC 'vpc-01a1d11626ea0045f'
+
+An error occurred (InvalidGroup.NotFound) when calling the DescribeSecurityGroups operation: The security group 'robo-mongodb6' does not exist in default VPC 'vpc-01a1d11626ea0045f'
+
+An error occurred (InvalidGroup.NotFound) when calling the DescribeSecurityGroups operation: The security group 'robo-mongodb7' does not exist in default VPC 'vpc-01a1d11626ea0045f'
+{
+    "GroupId": "sg-02fee308b9fd2af7f"
+}
+
+An error occurred (InvalidGroup.NotFound) when calling the DescribeSecurityGroups operation: The security group 'robo-test' does not exist in default VPC 'vpc-01a1d11626ea0045f'
+{
+    "GroupId": "sg-07edc6a6936ac2f43"
+}
+
+An error occurred (InvalidGroup.NotFound) when calling the DescribeSecurityGroups operation: The security group 'robo-test1' does not exist in default VPC 'vpc-01a1d11626ea0045f'
+{
+    "GroupId": "sg-0c6649823b2b5f3a0"
+}
