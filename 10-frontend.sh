@@ -17,31 +17,31 @@ SCRIPTDIR=$PWD
 
 #user validation
 if [ $(id -u) -ne 0 ]; then
-    echo -e "$RED Please run this script as Root User $NOCOLOR" | tee -a $LOGS_FILE
+    echo -e "$RED Please run this script as Root User $NOCOLOR" | tee -a "$LOGS_FILE"
     exit 1
 fi
 
 
 VALIDATE(){
     if [ $1 -ne 0 ]; then
-        echo -e "$TIMESTAMP $RED [ERROR] $NOCOLOR -- $2 Failed" | tee -a $LOGS_FILE
+        echo -e "$TIMESTAMP $RED [ERROR] $NOCOLOR -- $2 Failed" | tee -a "$LOGS_FILE"
         exit 1
     else
-        echo -e "$TIMESTAMP $GREEN [SUCCESS] $NOCOLOR -- $2 Success" | tee -a $LOGS_FILE
+        echo -e "$TIMESTAMP $GREEN [SUCCESS] $NOCOLOR -- $2 Success" | tee -a "$LOGS_FILE"
     fi
 }
 
-dnf module disable nginx -y &>> $LOGS_FILE
-dnf module enable nginx:1.24 -y &>> $LOGS_FILE
-dnf install nginx -y &>> $LOGS_FILE
+dnf module disable nginx -y &>> "$LOGS_FILE"
+dnf module enable nginx:1.24 -y &>> "$LOGS_FILE"
+dnf install nginx -y &>> "$LOGS_FILE"
 VALIDATE $? "Enabling and installing the Nginx 1.24"
 
 rm -rf /usr/share/nginx/html/* 
 VALIDATE $? "Removing existing nginx configuration"
 
-curl -o /tmp/frontend.zip https://roboshop-artifacts.s3.amazonaws.com/frontend-v3.zip &>> $LOGS_FILE
+curl -o /tmp/frontend.zip https://roboshop-artifacts.s3.amazonaws.com/frontend-v3.zip &>> "$LOGS_FILE"
 cd /usr/share/nginx/html 
-unzip /tmp/frontend.zip &>> $LOGS_FILE
+unzip /tmp/frontend.zip &>> "$LOGS_FILE"
 VALIDATE $? "Downloading and updatng the config files"
 
 rm -f /etc/nginx/nginx.conf
@@ -52,6 +52,6 @@ VALIDATE $? "Updating the nginx config for services routing"
 
 
 systemctl daemon-reload
-systemctl enable nginx &>> $LOGS_FILE
+systemctl enable nginx &>> "$LOGS_FILE"
 systemctl start nginx
 VALIDATE $? "Enabling and starting nginx"
