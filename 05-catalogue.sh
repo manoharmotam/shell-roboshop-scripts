@@ -44,7 +44,10 @@ else
     echo "User roboshop already exists"
 fi
 
-mkdir /app 
+rm -rf /app
+VALIDATE $? "Removing existing code"
+
+mkdir -p /app 
 curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip 
 cd /app 
 unzip /tmp/catalogue.zip
