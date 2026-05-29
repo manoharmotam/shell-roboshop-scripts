@@ -48,7 +48,7 @@ do
             --output text)
         R53_RECORD="$DOMAIN_NAME"
     else
-        IP=$(aws ec2 describe-instanaces --instance-ids "$INSTANCE_ID" \
+        IP=$(aws ec2 describe-instances --instance-ids "$INSTANCE_ID" \
             --query "Reservations[0].Instances[0].PrivateIpAddress" \
             --output text)
         R53_RECORD="$instance.$DOMAIN_NAME"
