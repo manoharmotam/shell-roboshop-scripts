@@ -29,7 +29,7 @@ for instance in "$@"
 do
     INSTANCE_ID=$(get_instance_id "$instance")
     if [ "$INSTANCE_ID" == None ]; then
-        INSTANCE_ID=$(aws ec2 run-instaces \
+        INSTANCE_ID=$(aws ec2 run-instances \
             --image-id "$AMIID" \
             --instance-type "$INSTANCE_SIZE" \
             --security-groups "robo-$instance" \
@@ -55,8 +55,8 @@ do
     fi
 #updating the AWS record
 
-    aws route53 change-resource-record-sets --hosted-zone-id $ZONEID 
-        --change-batch "
+    aws route53 change-resource-record-sets --hosted-zone-id $ZONEID \
+        --change-batch '
             {
                 "Comment": "Creating an A record",
                 "Changes": [
@@ -71,6 +71,6 @@ do
                     }
                 ]
             }
-        "
+        '
         echo "Updated the R53 Record for $instance"
 done
