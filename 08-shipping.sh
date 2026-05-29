@@ -52,7 +52,7 @@ unzip /tmp/shipping.zip
 VALIDATE $? "Downloading the packaging for the App"
 
 mvn clean package
-mv target/shipping.zip-1.0.jar shipping.jar
+mv target/shipping-1.0.jar shipping.jar
 VALIDATE $? "Building the dependencies and packaging the App"
 
 cp "$SCRIPTDIR"/configs/shipping.service /etc/systemd/system/
