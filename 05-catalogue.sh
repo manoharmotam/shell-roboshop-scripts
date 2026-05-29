@@ -13,6 +13,7 @@ sudo chown -R ec2-user:ec2-user $LOGS_FOLDER
 sudo chmod -R 755 $LOGS_FOLDER
 LOGS_FILE="$LOGS_FOLDER/$0.log"
 TIMESTAMP=$(date '+%Y-%m-%d %T')
+SCRIPTDIR=$PWD
 
 #user validation
 if [ $(id -u) -ne 0 ]; then
@@ -45,7 +46,7 @@ unzip /tmp/catalogue.zip
 npm install 
 VALIDATE $? "Downloading the dependencies and packaging the App"
 
-cp ./configs/catalogue.service /etc/systemd/system/
+cp "$SCRIPTDIR"/configs/catalogue.service /etc/systemd/system/
 VALIDATE $? "Creating the Catalogue service for the App"
 
 
