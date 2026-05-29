@@ -39,7 +39,7 @@ do
         aws ec2 wait instance-running --instance-ids "$INSTANCE_ID"
         echo -e "Instance is created and running: $GREEN $INSTANCE_ID $NOCOLOR"
     else
-        echo -e "Instance $INSTANCE_ID is already running"
+        echo -e "$RED Instance $INSTANCE_ID is already running $NOCOLOR"
     fi
 
     if [ "$instance" == frontend ]; then
@@ -72,5 +72,5 @@ do
                 ]
             }
         '
-        echo "$YELLOW Updated the R53 Record for $instance $NOCOLOR"
+        echo -e "$YELLOW Updated the R53 Record for $instance $NOCOLOR"
 done
