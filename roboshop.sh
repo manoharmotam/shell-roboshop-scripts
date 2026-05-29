@@ -22,7 +22,7 @@ fi
 
 get_instance_id(){
     NAME=$1
-    aws ec2 describe-instances --filters "Name=tag:Name,Values=robo-$NAME" "Name=instance-state-name,Values=running" --query "Reservations[0].Instances[0].InstanceId" --output text
+    aws ec2 describe-instances --filters "Name=tag:Name,Values=$PROJECT_NAME-$NAME" "Name=instance-state-name,Values=running" --query "Reservations[0].Instances[0].InstanceId" --output text
 }
 
 for instance in "$@"
@@ -32,12 +32,12 @@ do
         INSTANCE_ID=$(aws ec2 run-instances \
             --image-id "$AMIID" \
             --instance-type "$INSTANCE_SIZE" \
-            --security-groups "robo-$instance" \
-            --tag-specification "ResourceType=instance,Tags=[{Key=Name,Value=robo-$instance}]" \
+            --security-groups "$PROJECT_NAME-$instance" \
+            --tag-specification "ResourceType=instance,Tags=[{Key=Name,Value=$PROJECT_NAME-$instance}]" \
             --query "Instances[0].InstanceId" \
             --output text)
         aws ec2 wait instance-running --instance-ids "$INSTANCE_ID"
-        echo -e "Instance is created and running: $INSTANCE_ID"
+        echo -e "Instance is created and running: $GREEN $INSTANCE_ID $NOCOLOR"
     else
         echo -e "Instance $INSTANCE_ID is already running"
     fi
@@ -72,5 +72,5 @@ do
                 ]
             }
         '
-        echo "Updated the R53 Record for $instance"
+        echo "$YELLOW Updated the R53 Record for $instance $NOCOLOR"
 done
