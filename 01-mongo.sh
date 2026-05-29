@@ -23,22 +23,23 @@ fi
 
 VALIDATE(){
     if [ $1 -ne 0 ]; then
-        echo -e "$TIMESTAMP $RED [ERROR] $NOCOLOR -- $2 Failed" &>> $LOGS_FILE
+        echo -e "$TIMESTAMP $RED [ERROR] $NOCOLOR -- $2 Failed" | tee -a $LOGS_FILE
+        exit 1
     else
-        echo -e "$TIMESTAMP $GREEN [ERROR] $NOCOLOR -- $2 Success" &>LOGS_FILE
+        echo -e "$TIMESTAMP $GREEN [SUCCESS] $NOCOLOR -- $2 Success" | tee -a $LOGS_FILE
     fi
 }
 
 cp configs/mongo.repo /etc/yum.repos.d/
 VALIDATE $? "Copy Mongo repo file to repo list"
 
-dnf install mongodb-org -y >> $LOGS_FILE
+dnf install mongodb-org -y | tee -a $LOGS_FILE
 VALIDATE $? "Installation is complete"
 
 sed -i 's/127.0.0.1/0.0.0.0/g' /etc/mongod.conf
-VALIDATE $? "Updated the mongod.conf"
+VALIDATE $? "Enabled remote connections to mongodb"
 
-systemctl enable mongod
+systemctl enable mongod | tee -a $LOGS_FILE
 systemctl restart mongod
 VALIDATE $? "MongoD Services restarted"
 
