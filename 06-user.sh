@@ -31,12 +31,12 @@ VALIDATE(){
     fi
 }
 
-dnf module disable nodejs -y
-dnf module enable nodejs:20 -y
-dnf install nodejs -y
+dnf module disable nodejs -y &>> $LOGS_FILE
+dnf module enable nodejs:20 -y &>> $LOGS_FILE
+dnf install nodejs -y &>> $LOGS_FILE
 VALIDATE $? "Enabling and installing the NodeJS 20"
 
-id roboshop
+id roboshop &>> $LOGS_FILE
 if [ $? -ne 0 ]; then
     useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop
     VALIDATE $? "Creating the user for the application"
@@ -48,10 +48,10 @@ rm -rf /app
 VALIDATE $? "Removing existing code"
 
 mkdir -p /app 
-curl -o /tmp/user.zip https://roboshop-artifacts.s3.amazonaws.com/user-v3.zip 
+curl -o /tmp/user.zip https://roboshop-artifacts.s3.amazonaws.com/user-v3.zip &>> $LOGS_FILE
 cd /app 
-unzip /tmp/user.zip
-npm install 
+unzip /tmp/user.zip &>> $LOGS_FILE
+npm install &>> $LOGS_FILE
 VALIDATE $? "Downloading the dependencies and packaging the App"
 
 cp "$SCRIPTDIR"/configs/user.service /etc/systemd/system/
@@ -59,6 +59,6 @@ VALIDATE $? "Creating the user service for the App"
 
 
 systemctl daemon-reload
-systemctl enable user 
+systemctl enable user &>> $LOGS_FILE
 systemctl start user
 VALIDATE $? "Enabling and starting the user services"

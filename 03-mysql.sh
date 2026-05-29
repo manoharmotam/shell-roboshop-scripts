@@ -30,10 +30,10 @@ VALIDATE(){
     fi
 }
 
-dnf install mysql-server -y
+dnf install mysql-server -y &>> $LOGS_FILE
 VALIDATE $? "Installing mysql-server"
 
-systemctl enable mysqld | tee -a $LOGS_FILE
+systemctl enable mysqld &>> $LOGS_FILE
 systemctl restart mysqld
 VALIDATE $? "Restarting mysql-services"
 

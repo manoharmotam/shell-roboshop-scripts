@@ -31,12 +31,12 @@ VALIDATE(){
     fi
 }
 
-dnf module disable nodejs -y
-dnf module enable nodejs:20 -y
-dnf install nodejs -y
+dnf module disable nodejs -y &>> $LOGS_FILE
+dnf module enable nodejs:20 -y &>> $LOGS_FILE
+dnf install nodejs -y &>> $LOGS_FILE
 VALIDATE $? "Enabling and installing the NodeJS 20"
 
-id roboshop
+id roboshop &>> $LOGS_FILE
 if [ $? -ne 0 ]; then
     useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop
     VALIDATE $? "Creating the user for the application"
@@ -48,10 +48,10 @@ rm -rf /app
 VALIDATE $? "Removing existing code"
 
 mkdir -p /app 
-curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip 
+curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip &>> $LOGS_FILE
 cd /app 
-unzip /tmp/catalogue.zip
-npm install 
+unzip /tmp/catalogue.zip &>> $LOGS_FILE
+npm install  &>> $LOGS_FILE
 VALIDATE $? "Downloading the dependencies and packaging the App"
 
 cp "$SCRIPTDIR"/configs/catalogue.service /etc/systemd/system/
@@ -59,14 +59,14 @@ VALIDATE $? "Creating the Catalogue service for the App"
 
 
 systemctl daemon-reload
-systemctl enable catalogue 
+systemctl enable catalogue &>> $LOGS_FILE
 systemctl start catalogue
 VALIDATE $? "Enabling and starting the cataloge services"
 
 cp "$SCRIPTDIR"/configs/mongo.repo /etc/yum.repos.d/
 VALIDATE $? "Copy Mongo repo file to repo list"
 
-dnf install mongodb-mongosh -y 
+dnf install mongodb-mongosh -y &>> $LOGS_FILE
 VALIDATE $? "Installing the monogosh cli"
 
 mongosh --host mongodb.mrmotam.online </app/db/master-data.js

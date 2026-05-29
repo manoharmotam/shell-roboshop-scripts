@@ -33,10 +33,10 @@ VALIDATE(){
 cp configs/rabbitmq.repo /etc/yum.repos.d/
 VALIDATE $? "Copy RabbitMQ repo file to repo list"
 
-dnf install rabbitmq-server -y | tee -a $LOGS_FILE
+dnf install rabbitmq-server -y &>> $LOGS_FILE
 VALIDATE $? "Installation is complete"
 
-systemctl enable rabbitmq-server | tee -a $LOGS_FILE
+systemctl enable rabbitmq-server &>> $LOGS_FILE
 systemctl restart rabbitmq-server
 VALIDATE $? "RabbitMQ Services restarted"
 

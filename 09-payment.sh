@@ -31,10 +31,10 @@ VALIDATE(){
     fi
 }
 
-dnf install python3 gcc python3-devel -y
+dnf install python3 gcc python3-devel -y &>> $LOGS_FILE
 VALIDATE $? "Installing the Python and its packages"
 
-id roboshop
+id roboshop &>> $LOGS_FILE
 if [ $? -ne 0 ]; then
     useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop
     VALIDATE $? "Creating the user for the application"
@@ -46,19 +46,19 @@ rm -rf /app
 VALIDATE $? "Removing existing code"
 
 mkdir -p /app 
-curl -o /tmp/payment.zip https://roboshop-artifacts.s3.amazonaws.com/payment-v3.zip 
+curl -o /tmp/payment.zip https://roboshop-artifacts.s3.amazonaws.com/payment-v3.zip &>> $LOGS_FILE
 cd /app 
-unzip /tmp/payment.zip
+unzip /tmp/payment.zip &>> $LOGS_FILE
 VALIDATE $? "Extracting the required packages the App"
 
 cd /app 
-pip3 install -r requirements.txt
+pip3 install -r requirements.txt &>> $LOGS_FILE
 VALIDATE $? "Building the dependencies and packaging the App"
 
 cp "$SCRIPTDIR"/configs/payment.service /etc/systemd/system/
 VALIDATE $? "Creating the payment service for the App"
 
 systemctl daemon-reload
-systemctl enable payment 
+systemctl enable payment &>> $LOGS_FILE
 systemctl start payment
 VALIDATE $? "Enabling and starting the payment services"
