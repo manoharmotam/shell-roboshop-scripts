@@ -31,10 +31,8 @@ VALIDATE(){
     fi
 }
 
-dnf module disable nodejs -y
-dnf module enable nodejs:20 -y
-dnf install nodejs -y
-VALIDATE $? "Enabling and installing the NodeJS 20"
+dnf install python3 gcc python3-devel -y
+VALIDATE $? "Installing the Python and its packages"
 
 id roboshop
 if [ $? -ne 0 ]; then
@@ -48,11 +46,19 @@ rm -rf /app
 VALIDATE $? "Removing existing code"
 
 mkdir -p /app 
-curl -o /tmp/cart.zip https://roboshop-artifacts.s3.amazonaws.com/cart-v3.zip 
+curl -o /tmp/payment.zip https://roboshop-artifacts.s3.amazonaws.com/payment-v3.zip 
 cd /app 
-unzip /tmp/cart.zip
-npm install 
-VALIDATE $? "Downloading the dependencies and packaging the App"
+unzip /tmp/payment.zip
+VALIDATE $? "Extracting the required packages the App"
 
-cp "$SCRIPTDIR"/configs/cart.service /etc/systemd/system/
-VALIDATE $? "Creating the cart service for the App"
+cd /app 
+pip3 install -r requirements.txt
+VALIDATE $? "Building the dependencies and packaging the App"
+
+cp "$SCRIPTDIR"/configs/payment.service /etc/systemd/system/
+VALIDATE $? "Creating the payment service for the App"
+
+systemctl daemon-reload
+systemctl enable payment 
+systemctl start payment
+VALIDATE $? "Enabling and starting the payment services"
