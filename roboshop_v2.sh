@@ -12,6 +12,7 @@ AMIID="ami-0220d79f3f480ecf5"
 INSTANCE_SIZE="t3.micro"
 DOMAIN_NAME="mrmotam.online"
 ZONEID=Z00263282318BT9FBW1XK
+ALL=("mongodb" "redis" "mysql" "rabbitMQ" "catalogue" "user" "cart" "shipping" "payment" "frontend")
 
 #Validate if the correct arguments are provided
 if [ $# -lt 2 ]; then
@@ -35,6 +36,63 @@ get_instance_id(){
     aws ec2 describe-instances --filters "Name=tag:Name,Values=$PROJECT_NAME-$NAME" "Name=instance-state-name,Values=running" --query "Reservations[0].Instances[0].InstanceId" --output text
 }
 
+r53_record_update(){
+    method=$1
+
+    if [ "$method" == "UPSERT" ]; then
+        aws --no-cli-pager route53 change-resource-record-sets --hosted-zone-id $ZONEID \
+            --change-batch '
+                {
+                    "Comment": "Creating an A record for '$R53_RECORD'",
+                    "Changes": [
+                            {
+                            "Action": "'$method'",
+                            "ResourceRecordSet": {
+                                "Name": "'$R53_RECORD'",
+                                "Type": "A",
+                                "TTL": 1,
+                                "ResourceRecords": [{ "Value": "'$IP'" }]
+                            }
+                        }
+                    ]
+                }
+            '
+    elif [ "$method" == "DELETE" ]; then
+        aws --no-cli-pager route53 change-resource-record-sets --hosted-zone-id $ZONEID \
+            --change-batch '
+                {
+                    "Comment": "Deleting an A record for '$R53_RECORD'",
+                    "Changes": [
+                            {
+                            "Action": "'$method'",
+                            "ResourceRecordSet": {
+                                "Name": "'$R53_RECORD'",
+                                "Type": "A",
+                                "TTL": 1,
+                                "ResourceRecords": [{ "Value": "'$IP'" }]
+                            }
+                        }
+                    ]
+                }
+            '
+    else
+        echo -e "Enter a proper method for R53 records"
+    fi         
+}
+
+get_instance_ip(){
+    IP=$1
+
+    if [ "$IP" == "PublicIpAddress" ]; then
+        aws ec2 describe-instances --instance-ids "$INSTANCE_ID" \
+            --query "Reservations[0].Instances[0].$IP" \
+            --output text
+    elif [ "$IP" == "PrivateIpAddress" ]; then
+        aws ec2 describe-instances --instance-ids "$INSTANCE_ID" \
+            --query "Reservations[0].Instances[0].$IP" \
+            --output text
+    fi    
+}
 
 
 for instance in "$@"
@@ -56,36 +114,17 @@ do
         fi
 
         if [ "$instance" == "frontend" ]; then
-            IP=$(aws ec2 describe-instances --instance-ids "$INSTANCE_ID" \
-                --query "Reservations[0].Instances[0].PublicIpAddress" \
-                --output text)
+            IP=$(get_instance_ip "PublicIpAddress")
             R53_RECORD="$DOMAIN_NAME"
         else
-            IP=$(aws ec2 describe-instances --instance-ids "$INSTANCE_ID" \
-                --query "Reservations[0].Instances[0].PrivateIpAddress" \
-                --output text)
+            IP=$(get_instance_ip "PrivateIpAddress")
             R53_RECORD="$instance.$DOMAIN_NAME"
         fi
     #updating the AWS record
 
-        aws --no-cli-pager route53 change-resource-record-sets --hosted-zone-id $ZONEID \
-            --change-batch '
-                {
-                    "Comment": "Creating an A record for '$R53_RECORD'",
-                    "Changes": [
-                            {
-                            "Action": "UPSERT",
-                            "ResourceRecordSet": {
-                                "Name": "'$R53_RECORD'",
-                                "Type": "A",
-                                "TTL": 1,
-                                "ResourceRecords": [{ "Value": "'$IP'" }]
-                            }
-                        }
-                    ]
-                }
-            '
+        r53_record_update "UPSERT"
         echo -e "$YELLOW Updated the R53 Record for $instance $NOCOLOR"
+    
     elif [ "$ACTION" == "delete" ]; then
         if [ "$INSTANCE_ID" == "None" ]; then
             echo -e "There are no instances to delete/destroy."
@@ -95,35 +134,15 @@ do
                 --query "TerminatingInstances[*].InstanceId" \
                 --output text)
             echo -e "$INSTANCE_ID is now deleted"
-            if [ "$instance" == "frontend" ]; then
-                IP=$(aws ec2 describe-instances --instance-ids "$INSTANCE_ID" \
-                    --query "Reservations[0].Instances[0].PublicIpAddress" \
-                    --output text)
-                R53_RECORD="$DOMAIN_NAME"
-            else
-                IP=$(aws ec2 describe-instances --instance-ids "$INSTANCE_ID" \
-                    --query "Reservations[0].Instances[0].PrivateIpAddress" \
-                    --output text)
-                R53_RECORD="$instance.$DOMAIN_NAME"
-            fi
+        if [ "$instance" == "frontend" ]; then
+            IP=$(get_instance_ip "PublicIpAddress")
+            R53_RECORD="$DOMAIN_NAME"
+        else
+            IP=$(get_instance_ip "PrivateIpAddress")
+            R53_RECORD="$instance.$DOMAIN_NAME"
+        fi
             echo -e "Proceeding to delete associated R53 records"
-            aws --no-cli-pager route53 change-resource-record-sets --hosted-zone-id $ZONEID \
-                --change-batch '
-                    {
-                        "Comment": "Deleting an A record for '$R53_RECORD'",
-                        "Changes": [
-                                {
-                                "Action": "DELETE",
-                                "ResourceRecordSet": {
-                                    "Name": "'$R53_RECORD'",
-                                    "Type": "A",
-                                    "TTL": 1,
-                                    "ResourceRecords": [{ "Value": "'$IP'" }]
-                                }
-                            }
-                        ]
-                    }
-                '
+            r53_record_update "DELETE"
             echo "R53 $R53_RECORD deleted"
         fi
     fi
