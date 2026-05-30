@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # shopt -s nocasematch
 
@@ -33,7 +33,8 @@ fi
 
 get_instance_id(){
     NAME=$1
-    aws ec2 describe-instances --filters "Name=tag:Name,Values=$PROJECT_NAME-$NAME" "Name=instance-state-name,Values=running" --query "Reservations[0].Instances[0].InstanceId" --output text
+    aws ec2 describe-instances --filters "Name=tag:Name,Values=$PROJECT_NAME-$NAME" "Name=instance-state-name,Values=running" \
+        --query "Reservations[0].Instances[0].InstanceId" --output text
 }
 
 r53_record_update(){
