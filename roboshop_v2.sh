@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # shopt -s nocasematch
 
@@ -12,12 +12,12 @@ AMIID="ami-0220d79f3f480ecf5"
 INSTANCE_SIZE="t3.micro"
 DOMAIN_NAME="mrmotam.online"
 ZONEID=Z00263282318BT9FBW1XK
-ALL=("mongodb" "redis" "mysql" "rabbitMQ" "catalogue" "user" "cart" "shipping" "payment" "frontend")
+ALL_INSTANCES="mongodb redis mysql rabbitMQ catalogue user cart shipping payment frontend"
 
 #Validate if the correct arguments are provided
 if [ $# -lt 2 ]; then
     echo -e "$RED No arguments provided. Provide either Create or Delete action $NOCOLOR"
-    echo -e "$YELLOW USAGE:: $0 <CREATE/DELETE> <Instance name1> [Instance Name2] ... $NOCOLOR"
+    echo -e "$YELLOW USAGE:: $0 <CREATE/DELETE> <Instance name1> [Instance Name2] or [all]... $NOCOLOR"
     exit 1
 fi
 
@@ -27,8 +27,18 @@ shift
 #Ensuring only Delete/Create paramters are provided
 if [ "$ACTION" != "create" ] && [ "$ACTION" != "delete" ]; then
     echo -e "$RED Valid arguments not provided. Provide either Create or Delete action $NOCOLOR"
-    echo -e "$YELLOW USAGE:: $0 <CREATE/DELETE> <Instance name1> [Instance Name2] ... $NOCOLOR"
+    echo -e "$YELLOW USAGE:: $0 <CREATE/DELETE> <Instance name1> [Instance Name2] or [all]... $NOCOLOR"
     exit 1
+fi
+
+if [ "$1" == "all" ]; then
+    if [ "$ACTION" == "create" ]; then
+        INSTANCES=$ALL_INSTANCES
+    else
+        INSTANCES=$(echo $ALL_INSTANCES | tr ' ' '\n' | tac | tr '\n' ' ')
+    fi
+else
+    INSTANCES="$@"
 fi
 
 get_instance_id(){
@@ -96,7 +106,7 @@ get_instance_ip(){
 }
 
 
-for instance in "$@"
+for instance in $INSTANCES
 do
     INSTANCE_ID=$(get_instance_id "$instance")
     if [ "$ACTION" == "create" ]; then
